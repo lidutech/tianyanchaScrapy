@@ -74,10 +74,10 @@ AUTOTHROTTLE_ENABLED = True
 # The initial download delay
 AUTOTHROTTLE_START_DELAY = 35
 # The maximum download delay to be set in case of high latencies
-AUTOTHROTTLE_MAX_DELAY = 75
+AUTOTHROTTLE_MAX_DELAY = 100
 # The average number of requests Scrapy should be sending in parallel to
 # each remote server
-AUTOTHROTTLE_TARGET_CONCURRENCY = 1.0
+AUTOTHROTTLE_TARGET_CONCURRENCY = 0.5
 # Enable showing throttling stats for every response received:
 AUTOTHROTTLE_DEBUG = False
 
