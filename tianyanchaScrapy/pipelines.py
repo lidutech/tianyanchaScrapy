@@ -8,7 +8,7 @@
 from scrapy.exceptions import DropItem
 
 from .model import Model, get_sqlsession, engine, create_newtable
-
+from .mongodb import MongoHandler
 
 class TianyanchascrapyPipeline(object):
     def __init__(self):
@@ -23,5 +23,16 @@ class TianyanchascrapyPipeline(object):
         Model.save_mode(self.session, Model(), _item)
         return _item
 
+
+class TianyanchascrapyPipelineMongo:
+    def __init__(self):
+        self.mongo = MongoHandler(conn_uri='localhost', db='spider', collection_name='tianyancha')
+
+    def close_spider(self, spider):
+        self.mongo.close()
+
+    def process_item(self, item, spider):
+        self.mongo.run(item)
+        return item
 
 
