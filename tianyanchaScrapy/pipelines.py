@@ -20,8 +20,8 @@ class TianyanchascrapyPipeline(object):
 
     def process_item(self, item, spider):
         _item = Model.db_distinct(self.session, Model, item, item['url'])
-        Model.save_mode(self.session, Model(), item)
-        return item
+        Model.save_mode(self.session, Model(), _item)
+        return _item
 
 
 

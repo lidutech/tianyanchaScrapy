@@ -59,7 +59,7 @@ class BaseModel(Base):
                 raise e
 
         for k, v in attrs_datas.items():
-            if hasattr(obj, k) and k != 'id':
+            if hasattr(obj, k) and k != 'id':  # 非id属性
                 setattr(obj, k, str(v))
 
     @classmethod
@@ -73,6 +73,10 @@ class BaseModel(Base):
                 session.commit()
             except Exception as e:
                 session.rollback()
+
+
+            # with auto_commit(session):
+            #     session.add(model)
 
     @staticmethod
     @contextmanager
@@ -89,10 +93,13 @@ class BaseModel(Base):
         Db 通过url去重
         '''
 
+        # sql = 'SELECT url from {db_name}.{table_name} WHERE url ="{keyword}" limit 1'.format(db_name=db_name,table_name=table_name,keyword=keyword)
+        # result = session.execute(sql).fetchall()
+
         result = session.query(dbmodel).filter_by(url=keywords).first()
         if result:
-            raise DropItem('丢弃DB已存在的item:\n')
-            # pass
+            raise DropItem('丢弃DB已存在的item:\n')  # DropItem 丢弃
+            # pass     # 在close_spider()方法里面调用 DropItem 会报一个异常： ERROR: Scraper close failure,  所以直接pass也行
         else:
             return item
 

@@ -18,7 +18,6 @@ def run_spider():
     cmdline.execute('scrapy crawl {}'.format(tyurl_spider).split())
 
 
-
 def run_all2():
     from scrapy.crawler import CrawlerRunner
     from scrapy.utils.project import get_project_settings

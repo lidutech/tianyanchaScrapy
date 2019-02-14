@@ -10,8 +10,11 @@ __mtime__ = '2018/9/26'
 
 """
 import scrapy
-from scrapy_redis.spiders import RedisSpider
-from scrapy_redis.utils import bytes_to_str
+# from scrapy_redis.spiders import RedisSpider
+# from scrapy_redis.utils import bytes_to_str
+
+from scrapy_redis_bloomfilter.spiders import RedisSpider
+from scrapy_redis_bloomfilter.utils import bytes_to_str
 
 from tianyanchaScrapy.spiders.tianyancha import string_to_dict
 from tianyanchaScrapy.items import TianyanchascrapyItem
@@ -37,8 +40,8 @@ class TianyanchaDetailSpider(RedisSpider):
         return self.make_requests_from_url(url)
 
     def make_requests_from_url(self, url):
-        self.cookies = string_to_dict()
-        print('爬取:',url)
+        self.cookies = string_to_dict()  # 加入登入态, 同样这里还可以加入meta
+        self.logger.info('爬取:',url)
         return scrapy.Request(url, callback=self.detail_parse, cookies=self.cookies, dont_filter=True)
 
     def detail_parse(self,response):

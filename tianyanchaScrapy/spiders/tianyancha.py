@@ -10,6 +10,7 @@ tyurl_spider = 'tyurl'
 class TianyanchaSpider(scrapy.Spider):
     name = tyurl_spider
     allowed_domains = ['tianyancha.com']
+    # start_urls = ['http://tianyancha.com/']
 
     redis_key = 'tyc:request'
     redis = Redis(host=REDIS_HOST)
@@ -23,11 +24,11 @@ class TianyanchaSpider(scrapy.Spider):
         模糊搜索
         :return: 
         '''
-        search_keys = ['软装', '家具', '民用家具', '酒店家具', '办公家具', '户外家具', '软装饰品', '软装灯饰', '软装墙饰', '软装吊饰', '软装画艺', '软装雕塑',
-                       '软装酒店用品', '软装花器', '软装窗帘', '软装床品', '软装抱枕靠垫', '软装墙布墙纸', '软装地毯', '软装餐布', '软装布艺', '软装花植花器', '软装鲜花绿植',
-                       '软装仿真干花']
+        # search_keys = ['软装', '家具', '民用家具', '酒店家具', '办公家具', '户外家具', '软装饰品', '软装灯饰', '软装墙饰', '软装吊饰', '软装画艺', '软装雕塑',
+        #                '软装酒店用品', '软装花器', '软装窗帘', '软装床品', '软装抱枕靠垫', '软装墙布墙纸', '软装地毯', '软装餐布', '软装布艺', '软装花植花器', '软装鲜花绿植',
+        #                '软装仿真干花']
 
-        # search_keys = ['软装']
+        search_keys = ['软装']
         self.cookies = string_to_dict()
         for i in search_keys:
             for j in range(1, 6):  # 非会员(登不登录都只有5页,但是不登录容易被重定向到登录页)
@@ -59,12 +60,8 @@ class TianyanchaSpider(scrapy.Spider):
         for i in response.xpath('//div[@class="search-result-single "]'):
             url = i.xpath('div[2]/div/a/@href').extract_first()
             if url:
-
                 # count = self.redis.lpush(self.redis_key, url)
-
                 count = self.redis.sadd(self.redis_key, url)
-
-        print(count)
 
 
 # 登录态
@@ -85,7 +82,7 @@ if __name__ == '__main__':
     from scrapy.crawler import CrawlerProcess
     from scrapy.utils.project import get_project_settings
 
-    process = CrawlerProcess({'USER_AGENT': 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)'})
+    # process = CrawlerProcess({'USER_AGENT': 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)'})
     process = CrawlerProcess(get_project_settings())
     process.crawl(TianyanchaSpider)
     process.start()
