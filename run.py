@@ -15,7 +15,7 @@ def run_spider():
     from scrapy import cmdline
     from tianyanchaScrapy.spiders.tianyancha import tyurl_spider
     from tianyanchaScrapy.spiders.tianyanchaDetail import tydetail_spider
-    cmdline.execute('scrapy crawl {}'.format(tyurl_spider).split())
+    cmdline.execute('scrapy crawl {}'.format(tydetail_spider).split())
 
 
 def run_all2():

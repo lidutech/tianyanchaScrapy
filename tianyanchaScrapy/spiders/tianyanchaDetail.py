@@ -36,12 +36,13 @@ class TianyanchaDetailSpider(RedisSpider):
 
     def make_request_from_data(self, data):
         url = bytes_to_str(data,self.redis_encoding)
-        # lpush tyc:request https://www.tianyancha.com/company/1150018629 https://www.tianyancha.com/company/1077215780
+        # lpush tyc:request https://www.tianyancha.com/company/1150018629,https://www.tianyancha.com/company/1077215780
+        # sadd tyc:request https://www.tianyancha.com/company/529618724
         return self.make_requests_from_url(url)
 
     def make_requests_from_url(self, url):
-        self.cookies = string_to_dict()  # 加入登入态, 同样这里还可以加入meta
-        self.logger.info('爬取:',url)
+        self.cookies = string_to_dict()  # cookies
+        self.logger.info('爬取:%s'%url)
         return scrapy.Request(url, callback=self.detail_parse, cookies=self.cookies, dont_filter=True)
 
     def detail_parse(self,response):
@@ -62,19 +63,23 @@ class TianyanchaDetailSpider(RedisSpider):
         item['faren'] = response.xpath('//div[@class="humancompany"]/div/a/@title').extract_first()
 
         tr = response.xpath('//table[@class="table -striped-col -border-top-none"]/tbody')
-        d1 = tr.xpath('tr[1]/td[2]/text()').extract_first()
-        d2 = tr.xpath('tr[1]/td[4]/text()').extract_first()
+
+        d1 = tr.xpath('tr[1]/td[2]/div/text()').extract_first()
+        d2 = tr.xpath('tr[1]/td[4]/div/text()').extract_first()
+
 
         d3 = tr.xpath('tr[2]/td[2]/text()').extract_first()
         d4 = tr.xpath('tr[2]/td[4]/text()').extract_first()
 
+
         d5 = tr.xpath('tr[3]/td[2]/text()').extract_first()
         d6 = tr.xpath('tr[3]/td[4]/text()').extract_first()
 
-        d7 = tr.xpath('tr[4]/td[2]/span/text()').extract_first()
-        d8 = tr.xpath('tr[4]/td[4]/text/text()').extract_first()
 
-        d9 = tr.xpath('tr[5]/td[2]/text()').extract_first()
+        d7 = tr.xpath('tr[4]/td[2]/text()').extract_first()
+        d8 = tr.xpath('tr[4]/td[4]/text()').extract_first()
+
+        d9 = tr.xpath('tr[5]/td[2]/span/text()').extract_first()
         d10 = tr.xpath('tr[5]/td[4]/text()').extract_first()
 
         d11 = tr.xpath('tr[6]/td[2]/text()').extract_first()
@@ -84,9 +89,15 @@ class TianyanchaDetailSpider(RedisSpider):
         d14 = tr.xpath('tr[7]/td[4]/text()').extract_first()
 
         d15 = tr.xpath('tr[8]/td[2]/text()').extract_first()
-        d16 = tr.xpath('tr[9]/td[2]/span/span/span[1]/text()').extract_first()
+        d16 = tr.xpath('tr[8]/td[4]/text()').extract_first()
 
-        detail ={'工商注册号':d1,'组织机构代码':d2,'统一信用代码':d3,'公司类型':d4,'纳税人识别号':d5,'行业':d6,'营业期限':d7,'核准日期':d8,'纳税人资质':d9,'人员规模':d10,'实缴资本':d11,'登记机关':d12,'参保人数':d13,'英文名称':d14,'注册地址':d15,'经营范围':d16}
+        d17 = tr.xpath('tr[9]/td[2]/text()').extract_first()
+        d18 = tr.xpath('tr[9]/td[4]/text()').extract_first()
+
+        d19 = tr.xpath('tr[10]/td[2]/span/span/span[1]/text()').extract_first()
+
+        detail ={'注册资本':d1,'成立日期':d2,'经营状态':d3,'工商注册号':d4,'统一社会信用代码':d5,'组织机构代码':d6,'纳税人识别号':d7,'公司类型':d8,\
+                 '营业期限':d9,'行业':d10,'纳税人资质':d11,'核准日期':d12,'实缴资本':d13,'人员规模':d14,'参保人数':d15,'登记机关':d16,'注册地址':d17,'英文名称':d18,'经营范围':d19}
         item['detail'] = detail
 
         item['license'] = ''
@@ -95,10 +106,22 @@ class TianyanchaDetailSpider(RedisSpider):
             yield scrapy.Request(license_url, callback=self.detail2_parse, cookies=self.cookies, meta={'item': item},
                                  dont_filter=True)
         else:
+
             yield item
 
 
     def detail2_parse(self, response):
         item = response.meta['item']
         item['license'] = response.xpath('//*[@id="web-content"]/div/div/div[1]/div[2]/img/@src').extract_first()
+
         return item
+
+
+if __name__ == '__main__':
+    from scrapy.crawler import CrawlerProcess
+    from scrapy.utils.project import get_project_settings
+
+    # process = CrawlerProcess({'USER_AGENT': 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)'})
+    process = CrawlerProcess(get_project_settings())
+    process.crawl(TianyanchaDetailSpider)
+    process.start()
