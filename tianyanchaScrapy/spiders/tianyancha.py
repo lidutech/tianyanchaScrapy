@@ -3,7 +3,7 @@ import scrapy
 from redis import Redis
 
 
-from settings import REDIS_HOST
+from tianyanchaScrapy.settings import REDIS_HOST
 
 tyurl_spider = 'tyurl'
 
