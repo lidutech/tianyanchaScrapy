@@ -33,7 +33,7 @@ class TianyanchaSpider(scrapy.Spider):
         for i in search_keys:
             for j in range(1, 6):  # 非会员(登不登录都只有5页,但是不登录容易被重定向到登录页)
                 yield scrapy.Request(url=self.base_url.format(page=j, key=i), callback=self.url_parse,
-                                     cookies=self.cookies)
+                                     cookies=self.cookies,dont_filter=True)
 
     def key_search(self):
         '''
@@ -46,7 +46,7 @@ class TianyanchaSpider(scrapy.Spider):
         # for i in range(0,4):
         for i in range(0,len(search_keys)):
             yield scrapy.Request(url='https://www.tianyancha.com/search?key={}'.format(search_keys[i]), callback=self.url_parse,
-                                     cookies=self.cookies)
+                                     cookies=self.cookies,dont_filter=True)
 
     def start_requests(self):
         # self.fuzzy_search()
@@ -57,11 +57,12 @@ class TianyanchaSpider(scrapy.Spider):
 
     def url_parse(self, response):
         count = 0
-        for i in response.xpath('//div[@class="search-result-single "]'):
-            url = i.xpath('div[2]/div/a/@href').extract_first()
+        for i in response.xpath('//div[@class="search-item sv-search-company"]/div'):
+            url = i.xpath('div[3]/div/a/@href').extract_first()
             if url:
                 # count = self.redis.lpush(self.redis_key, url)
                 count = self.redis.sadd(self.redis_key, url)
+                self.logger.info('sadd status:%s'%count)
 
 
 # 登录态
